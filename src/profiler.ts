@@ -5,16 +5,26 @@ export interface ProfilerOptions {
   session?: inspector.Session
 }
 
-class Profiler {
+export class Profiler {
   session: inspector.Session
   constructor(options?: ProfilerOptions) {
     this.session = (options || {}).session || (new inspector.Session())
-    this.session.connect()
+    if (!options?.session) {
+      this.connect()
+    }
+  }
+
+  connect():void{
+    try{
+      this.session.connect()
+    } catch(err){
+    }
   }
 
   getInfo(time?: number): Promise<inspector.Profiler.Profile> {
-    const interval = time || 1000
+    const interval = time || 5000
     const session = this.session
+    this.connect()
     return new Promise((resolve, reject) => {
       session.post('Profiler.enable', (err) => {
         if (err) {
